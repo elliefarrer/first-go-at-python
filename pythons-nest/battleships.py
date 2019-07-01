@@ -1,97 +1,111 @@
-# Two player battleships with a user and a computer
-
-# Get user to place two ships on grid
-# Then computer randomly places Two
-# User makes a guess and check if correct
-# Then computer randomly does
-# Go back and forth until winner
-
+################### PLUGINS #######################
 from random import randint
 
-def check_invalid_validity(row, column):
-    if row not in range(7) or column not in range(7): print ("You've already failed")
+########################## DATA ####################
+user_board = []
+computer_board = []
+# TODO: write a function to check no two points are the same.
+
+user_ships = {
+    "cruise_liner": [],
+    "private_yacht": [],
+    "dinghy": [],
+    "submarine": []
+}
+
+gameplay_stats = {
+    "user_correct_guesses": 0,
+    "computer_correct_guesses": 0,
+    "turns": 0
+}
+
+
+#################### FUNCTIONS ##################
+def getUserPoint(ship, message):
+    points = int(raw_input("%s: " % (message)))
+
+    while points not in range(6):
+        points = int(raw_input("That number is too big. Pick on between 0 and 5: "))
+
+    user_ships[ship].append(points)
+
+def place_point(board, obj, ship, char):
+    board[obj[ship][0]][obj[ship][1]] = char
 
 def print_board(board):
     for row in board:
-        print " ".join(row)
+        print(" ".join(row))
 
 def check_winner():
-    if user_correct_guesses == 2: print("You win!")
-    elif computer_correct_guesses == 2: print("The computer won!")
+    if gameplay_stats["user_correct_guesses"] == 4: print("Congrats, you won!")
+    elif gameplay_stats["computer_correct_guesses"] == 4: print("Bad luck, the computer won...")
 
-user_board = []
 
+##################### GAMEPLAY SETUP #########################
 for square in range(0, 6):
-    user_board.append(["O"] * 6)
+    user_board.append(["~"] * 6)
+    computer_board.append(["~"] * 6)
 
-computer_board = []
+computer_ships = {
+    "cruise_liner": [randint(0, 5), randint(0, 5)],
+    "private_yacht": [randint(0, 5), randint(0, 5)],
+    "dinghy": [randint(0, 5), randint(0, 5)],
+    "submarine": [randint(0, 5), randint(0, 5)]
+}
 
-for square in range(0, 6):
-    computer_board.append(["O"] * 6)
+getUserPoint("cruise_liner", "To begin, choose a number between 0 and 5 for the X position of your cruise liner")
+getUserPoint("cruise_liner", "Now choose a number between 0 and 5 for the Y position")
+getUserPoint("private_yacht", "Choose the X position of your private yacht")
+getUserPoint("private_yacht", "Now choose the Y position")
+getUserPoint("dinghy", "Now choose the X position of your dinghy")
+getUserPoint("dinghy", "Now choose the Y point")
+getUserPoint("submarine", "Choose an X position for your submarine")
+getUserPoint("submarine", "Finally, choose the submarine's Y position")
 
+place_point(user_board, user_ships, "cruise_liner", "C")
+place_point(user_board, user_ships, "private_yacht", "Y")
+place_point(user_board, user_ships, "dinghy", "D")
+place_point(user_board, user_ships, "submarine", "S")
+place_point(computer_board, computer_ships, "cruise_liner", "C")
+place_point(computer_board, computer_ships, "private_yacht", "Y")
+place_point(computer_board, computer_ships, "dinghy", "D")
+place_point(computer_board, computer_ships, "submarine", "S")
 
-computer_cruise_liner_row = randint(0, 5)
-computer_cruise_liner_col = randint(0, 5)
-computer_private_yacht_row = randint(0, 5)
-computer_private_yacht_col = randint(0, 5)
-
-# print("Computer's cruise liner is at %s/%s" % (computer_cruise_liner_row, computer_cruise_liner_col))
-# print("Computer's yacht is at %s/%s" % (computer_private_yacht_row, computer_private_yacht_col))
-
-user_correct_guesses = 0
-computer_correct_guesses = 0
-
-
-
-print("Welcome to Battleships!")
-
-user_cruise_liner_row = int(raw_input("To begin, choose a row (0-6) for your P&O cruise liner: "))
-user_cruise_liner_col = int(raw_input("Now choose its column (0-6): "))
-
-check_invalid_validity(user_cruise_liner_row, user_cruise_liner_col)
-
-user_private_yacht_row = int(raw_input("Now select a row (0-6) for your private yacht: "))
-user_private_yacht_col = int(raw_input("And now select its column (0-6): "))
-
-check_invalid_validity(user_private_yacht_row, user_private_yacht_col)
-
-
-
-user_board[user_cruise_liner_row][user_cruise_liner_col] = "C"
-user_board[user_private_yacht_row][user_private_yacht_col] = "Y"
-
-print("Below if your board. C = cruise liner, and Y = private yacht")
+print("Your board is below: ")
 
 print_board(user_board)
 
-computer_board[computer_cruise_liner_row][computer_cruise_liner_col] = "C"
-computer_board[computer_private_yacht_row][computer_private_yacht_col] = "Y"
 
-# print("The computer's board is:")
-# print_board(computer_board)
-
-
-# Now that the game is set up, let's play some Battleships!
-while user_correct_guesses != 2 and computer_correct_guesses != 2:
+########################## ACTUAL GAMEPLAY ##########################
+while gameplay_stats["user_correct_guesses"] != 4 and gameplay_stats["computer_correct_guesses"] != 4:
     users_turn = True
 
     while users_turn == True:
-        user_guess_row = int(raw_input("Select a row (0-6) to guess: "))
-        user_guess_col = int(raw_input("Now guess a column (0-6): "))
+        user_guess_row = int(raw_input("Rocket time! Choose an X point between 0 and 5: "))
+        user_guess_col = int(raw_input("Now choose a Y point (0-5): "))
 
         if computer_board[user_guess_row][user_guess_col] == "C":
-            print("You have sunk the computer's P&O cruise liner")
-            computer_board[user_guess_row][user_guess_col] = "."
-            user_correct_guesses = user_correct_guesses + 1
+            print("You have sunk the computer's cruise liner")
+            computer_board[user_guess_row][user_guess_col] = "X"
+            gameplay_stats["user_correct_guesses"] = gameplay_stats["user_correct_guesses"] + 1
         elif computer_board[user_guess_row][user_guess_col] == "Y":
             print("You have sunk the computer's private yacht")
-            computer_board[user_guess_row][user_guess_col] = "."
-            user_correct_guesses = user_correct_guesses + 1
-        elif computer_board[user_guess_row][user_guess_col] == "X" or computer_board[user_guess_row][user_guess_col] == ".":
+            computer_board[user_guess_row][user_guess_col] = "X"
+            gameplay_stats["user_correct_guesses"] = gameplay_stats["user_correct_guesses"] + 1
+        elif computer_board[user_guess_row][user_guess_col] == "D":
+            print("You have sunk the computer's dinghy")
+            computer_board[user_guess_row][user_guess_col] = "X"
+            gameplay_stats["user_correct_guesses"] = gameplay_stats["user_correct_guesses"] + 1
+        elif computer_board[user_guess_row][user_guess_col] == "S":
+            print("You have sunk the computer's submarine")
+            computer_board[user_guess_row][user_guess_col] = "X"
+            gameplay_stats["user_correct_guesses"] = gameplay_stats["user_correct_guesses"] + 1
+        elif computer_board[user_guess_row][user_guess_col] == "X" or computer_board[user_guess_row][
+            user_guess_col] == ".":
             print("You already hit that spot")
         else:
             print("You missed!")
-            computer_board[user_guess_row][user_guess_col] = "X"
+            computer_board[user_guess_row][user_guess_col] = "."
 
         check_winner()
         users_turn = False
@@ -101,24 +115,37 @@ while user_correct_guesses != 2 and computer_correct_guesses != 2:
         computer_guess_col = randint(0, 5)
 
         if user_board[computer_guess_row][computer_guess_col] == "C":
-            print("The computer sunk your P&O cruise liner")
-            user_board[computer_guess_row][computer_guess_col] = "."
+            print("The computer sunk your cruise liner")
+            user_board[computer_guess_row][computer_guess_col] = "X"
             print_board(user_board)
-            computer_correct_guesses = computer_correct_guesses + 1
+            gameplay_stats["computer_correct_guesses"] = gameplay_stats["computer_correct_guesses"] + 1
         elif user_board[computer_guess_row][computer_guess_col] == "Y":
             print("The computer sunk your private yacht")
-            user_board[computer_guess_row][computer_guess_col] = "."
+            user_board[computer_guess_row][computer_guess_col] = "X"
             print_board(user_board)
-            computer_correct_guesses = computer_correct_guesses + 1
-        elif user_board[computer_guess_row][computer_guess_col] == "X" or user_board[computer_guess_row][computer_guess_col] == ".":
+            gameplay_stats["computer_correct_guesses"] = gameplay_stats["computer_correct_guesses"] + 1
+        elif user_board[computer_guess_row][computer_guess_col] == "D":
+            print("The computer sunk your dinghy")
+            user_board[computer_guess_row][computer_guess_col] = "X"
+            print_board(user_board)
+            gameplay_stats["computer_correct_guesses"] = gameplay_stats["computer_correct_guesses"] + 1
+        elif user_board[computer_guess_row][computer_guess_col] == "S":
+            print("The computer sunk your submarine")
+            user_board[computer_guess_row][computer_guess_col] = "X"
+            print_board(user_board)
+            gameplay_stats["computer_correct_guesses"] = gameplay_stats["computer_correct_guesses"] + 1
+        elif user_board[computer_guess_row][computer_guess_col] == "X" or user_board[computer_guess_row][
+            computer_guess_col] == ".":
             print("Computer is a massive dumb dumb because it already hit that spot")
             print_board(user_board)
         else:
-            print("Compter missed!")
-            user_board[computer_guess_row][computer_guess_col] = "X"
+            print("Computer missed!")
+            user_board[computer_guess_row][computer_guess_col] = "."
             print_board(user_board)
 
+
+        gameplay_stats["turns"] = gameplay_stats["turns"] + 1
         check_winner()
         users_turn = True
 
-check_winner()
+    check_winner()
